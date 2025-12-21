@@ -2,7 +2,32 @@
 package school.madcalc;
 import java.util.Scanner;
 
+/**
+ * MadCalc - A command-line calculator supporting basic arithmetic operations,
+ * parentheses, and special functions (square root, power of two, and cube).
+ * 
+ * <p>This calculator accepts mathematical expressions and evaluates them using
+ * recursive descent parsing with proper operator precedence.</p>
+ * 
+ * @author Mad Calc Team
+ * @version 1.0
+ */
 public class MadCalc {
+    /**
+     * Main entry point for the Mad Calc application.
+     * Provides an interactive command-line interface for evaluating mathematical expressions.
+     * 
+     * <p>Supported operations:</p>
+     * <ul>
+     *   <li>Basic arithmetic: +, -, *, /</li>
+     *   <li>Parentheses for grouping</li>
+     *   <li>sqrt &lt;number&gt; - Square root function</li>
+     *   <li>pow2 &lt;number&gt; - Power of two function</li>
+     *   <li>cube &lt;number&gt; - Cube function</li>
+     * </ul>
+     * 
+     * @param args command-line arguments (not used)
+     */
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Welcome to Mad Calc!");
@@ -58,26 +83,60 @@ public class MadCalc {
         scanner.close();
     }
 
-    // Expression evaluator supporting +, -, *, /, parentheses, and order of operations
-    // Uses recursive descent parsing
+    /**
+     * Evaluates a mathematical expression supporting +, -, *, /, and parentheses.
+     * Uses recursive descent parsing to handle operator precedence correctly.
+     * 
+     * @param expr the mathematical expression to evaluate
+     * @return the result of the evaluation
+     * @throws RuntimeException if the expression is invalid or contains mismatched parentheses
+     */
     private static double evaluate(String expr) {
         return new Parser(expr).parse();
     }
 
-    // Inner parser class
+    /**
+     * Inner parser class that implements recursive descent parsing
+     * for mathematical expressions.
+     * 
+     * <p>This parser handles operator precedence and parentheses
+     * using the following grammar:</p>
+     * <ul>
+     *   <li>expression = term | expression `+` term | expression `-` term</li>
+     *   <li>term = factor | term `*` factor | term `/` factor</li>
+     *   <li>factor = `+` factor | `-` factor | number | `(` expression `)`</li>
+     * </ul>
+     */
     private static class Parser {
         private final String input;
         private int pos = -1, ch;
 
+        /**
+         * Constructs a new Parser for the given input expression.
+         * Removes all whitespace from the input during initialization.
+         * 
+         * @param input the mathematical expression to parse
+         */
         Parser(String input) {
             this.input = input.replaceAll("\\s+", "");
             nextChar();
         }
 
+        /**
+         * Advances to the next character in the input string.
+         * Sets ch to -1 when the end of input is reached.
+         */
         void nextChar() {
             ch = (++pos < input.length()) ? input.charAt(pos) : -1;
         }
 
+        /**
+         * Attempts to consume a specific character from the input.
+         * Skips any leading spaces before checking.
+         * 
+         * @param charToEat the character to consume
+         * @return true if the character was consumed, false otherwise
+         */
         boolean eat(int charToEat) {
             while (ch == ' ') nextChar();
             if (ch == charToEat) {
@@ -87,16 +146,24 @@ public class MadCalc {
             return false;
         }
 
+        /**
+         * Parses and evaluates the entire expression.
+         * 
+         * @return the result of the expression
+         * @throws RuntimeException if there are unexpected characters after parsing
+         */
         double parse() {
             double x = parseExpression();
             if (pos < input.length()) throw new RuntimeException("Unexpected: " + (char)ch);
             return x;
         }
 
-        // Grammar:
-        // expression = term | expression `+` term | expression `-` term
-        // term = factor | term `*` factor | term `/` factor
-        // factor = `+` factor | `-` factor | number | `(` expression `)`
+        /**
+         * Parses an expression (addition and subtraction operations).
+         * Handles left-to-right evaluation of terms connected by + or - operators.
+         * 
+         * @return the result of the expression
+         */
         double parseExpression() {
             double x = parseTerm();
             while (true) {
@@ -106,6 +173,12 @@ public class MadCalc {
             }
         }
 
+        /**
+         * Parses a term (multiplication and division operations).
+         * Handles left-to-right evaluation of factors connected by * or / operators.
+         * 
+         * @return the result of the term
+         */
         double parseTerm() {
             double x = parseFactor();
             while (true) {
@@ -115,6 +188,18 @@ public class MadCalc {
             }
         }
 
+        /**
+         * Parses a factor (numbers, parenthesized expressions, and unary operators).
+         * Handles:
+         * <ul>
+         *   <li>Unary plus and minus</li>
+         *   <li>Parenthesized expressions</li>
+         *   <li>Numeric literals (including decimals)</li>
+         * </ul>
+         * 
+         * @return the result of the factor
+         * @throws RuntimeException if parentheses are mismatched or unexpected characters are found
+         */
         double parseFactor() {
             if (eat('+')) return parseFactor(); // unary plus
             if (eat('-')) return -parseFactor(); // unary minus
@@ -134,6 +219,14 @@ public class MadCalc {
         }
     }
 
+    /**
+     * Calculates the square root of a number.
+     * 
+     * @param numberStr the string representation of the number
+     * @return the square root of the number
+     * @throws NumberFormatException if the string cannot be parsed as a number
+     * @throws IllegalArgumentException if the number is negative
+     */
     private static double calculateSquareRoot(String numberStr) {
         double num = Double.parseDouble(numberStr.trim());
         if (num < 0) {
@@ -142,11 +235,25 @@ public class MadCalc {
         return Math.sqrt(num);
     }
 
+    /**
+     * Calculates the square (power of two) of a number.
+     * 
+     * @param numberStr the string representation of the number
+     * @return the square of the number (number²)
+     * @throws NumberFormatException if the string cannot be parsed as a number
+     */
     private static double calculatePowerOfTwo(String numberStr) {
         double num = Double.parseDouble(numberStr.trim());
         return num * num;
     }
 
+    /**
+     * Calculates the cube (power of three) of a number.
+     * 
+     * @param numberStr the string representation of the number
+     * @return the cube of the number (number³)
+     * @throws NumberFormatException if the string cannot be parsed as a number
+     */
     private static double calculateCube(String numberStr) {
         double num = Double.parseDouble(numberStr.trim());
         return num * num * num;
