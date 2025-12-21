@@ -1,4 +1,3 @@
-
 # Full-Stack Architecture: Mad Calc CLI (Java)
 
 ### 1. Overview
@@ -46,7 +45,84 @@ The Mad Calc is a command-line calculator application implemented in Java. It is
 - **Testing:** JUnit test cases for all operations and input scenarios.
 - **Error Handling:** Graceful handling of invalid input and exceptions.
 
-### 6. Example Usage
+### 6. User Interaction (Sequence Diagram)
+
+Below is the typical interaction flow between a student and Mad Calc.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as Primary school student
+    participant CLI as MadCalc (CLI)
+    participant Parser as Expression Parser
+    participant Engine as Calculation Engine
+    participant Out as Stdout
+
+    User->>CLI: Start app
+    CLI->>Out: "Welcome to Mad Calc!" + usage hints
+
+    loop Until user types "exit"
+        User->>CLI: Enter input line
+
+        alt input == "exit"
+            CLI->>Out: "Goodbye!"
+            CLI-->>User: Program ends
+        else input starts with "sqrt "
+            CLI->>Engine: calculateSquareRoot(number)
+            alt invalid number
+                Engine-->>CLI: NumberFormatException
+                CLI->>Out: Child-friendly error
+            else negative value
+                Engine-->>CLI: IllegalArgumentException
+                CLI->>Out: "I can only calculate the square root of positive numbers!"
+            else OK
+                Engine-->>CLI: result
+                CLI->>Out: "The answer is: <result>"
+            end
+        else input starts with "pow2 "
+            CLI->>Engine: calculatePowerOfTwo(number)
+            alt invalid number
+                Engine-->>CLI: NumberFormatException
+                CLI->>Out: Child-friendly error
+            else OK
+                Engine-->>CLI: result
+                CLI->>Out: "The answer is: <result>"
+            end
+        else input starts with "cube "
+            CLI->>Engine: calculateCube(number)
+            alt invalid number
+                Engine-->>CLI: NumberFormatException
+                CLI->>Out: Child-friendly error
+            else OK
+                Engine-->>CLI: result
+                CLI->>Out: "The answer is: <result>"
+            end
+        else arithmetic expression (e.g., "2*(3+4)")
+            CLI->>Parser: evaluate(expression)
+            Parser->>Engine: parse + compute
+            alt mismatched parentheses
+                Engine-->>Parser: RuntimeException("Mismatched parentheses")
+                Parser-->>CLI: RuntimeException
+                CLI->>Out: "Oops! Your parentheses don't match."
+            else invalid token/syntax
+                Engine-->>Parser: RuntimeException("Unexpected: …")
+                Parser-->>CLI: RuntimeException
+                CLI->>Out: Child-friendly error
+            else OK
+                Engine-->>Parser: result
+                Parser-->>CLI: result
+                CLI->>Out: "The answer is: <result>"
+            end
+        end
+    end
+```
+
+**Notes**
+
+- This diagram reflects the current implementation where special commands (`sqrt`, `pow2`, `cube`) are handled as command prefixes, while general arithmetic expressions are handled by a recursive descent parser.
+- All errors are converted into simple, child-friendly messages at the CLI boundary (standard output).
+
+### 7. Example Usage
 
 ```sh
 $ java -jar mad-calc.jar
@@ -58,7 +134,7 @@ Welcome to Mad Calc!
 > exit
 ```
 
-### 7. Future Enhancements
+### 8. Future Enhancements
 
 - Add support for command history and recall.
 - Support for scripting or batch calculations.
