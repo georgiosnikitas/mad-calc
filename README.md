@@ -1,7 +1,7 @@
 # MadCalc
 
 MadCalc is a simple, command-line calculator designed for primary school students. It provides a distraction-free environment for learning basic arithmetic and gently introduces them to the command line.
- 
+
 ## Features
 
 *   Basic arithmetic operations: addition, subtraction, multiplication, and division.
